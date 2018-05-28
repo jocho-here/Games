@@ -12,6 +12,8 @@ class Chess_Board():
                   (0,2):'b', (0,5):'b', (0,3):'q', (0,4):'k',\
                   (1,0):'p', (1,1):'p', (1,2):'p', (1,3):'p',\
                   (1,4):'p', (1,5):'p', (1,6):'p', (1,7):'p'}
+        self.piece_dict = {'r':'rook', 'b':'bishop', 'p':'pawn',\
+                           'n':'knight', 'q': 'queen', 'k':'king'}
 
     """
     Black pieces are in upper-letters
@@ -22,13 +24,13 @@ class Chess_Board():
     def __str__(self):
         rtn_str = ''
         board =    '\n'
-        board += '  -------b-------\n'
-        board += '  0 1 2 3 4 5 6 7\n'
+        board += '        -------b-------\n'
+        board += '        0 1 2 3 4 5 6 7\n'
         bs = self.b.keys()
         ws = self.w.keys()
 
         for i in range(self.height):
-            board += str(i) + ' '
+            board += '      ' + str(i) + ' '
             for j in range(self.width):
                 if (i, j) in bs:
                     board += self.b[(i,j)]
@@ -39,10 +41,10 @@ class Chess_Board():
                 board += ' '
 
             board += '\n'
-        board += '  -------W-------\n\n'
+        board += '        -------W-------\n\n'
         rtn_str += board
-        rtn_str += 'Number of black alive: ' + str(len(self.b)) + '\n'
-        rtn_str += 'Number of white alive: ' + str(len(self.w)) + '\n'
+        rtn_str += '      Number of blacks: ' + str(len(self.b)) + '\n'
+        rtn_str += '      Number of whites: ' + str(len(self.w)) + '\n'
 
         return rtn_str
 
@@ -253,9 +255,6 @@ class Chess_Board():
         elif piece == 'q':
             possible_moves = self.get_queen_moves(player, pos)
 
-        print('original position: ', pos)
-        print('possible moves: ', possible_moves)
-
         if len(possible_moves) > 0:
             return True, possible_moves
         elif len(possible_moves) == 0:
@@ -310,19 +309,92 @@ class Chess_Board():
 
         while self.is_game_over() != True:
             if curr_player == 'w':
-                print("White's turn")
+                print("      White's turn")
                 pieces = self.w
             elif curr_player == 'b':
-                print("Black's turn")
+                print("      Black's turn")
                 pieces = self.b
 
             options = set(pieces.values())
             pieces = int(random() * (len(options)+1))
 
+    def choose_piece_to_move(self, player):
+        if player == 'w':
+            print("      White's turn")
+            pieces = self.w
+        elif player == 'b':
+            print("      Black's turn")
+            pieces = self.b
+
+        print('')
+        print("Choose a piece to move")
+        options = set(pieces.values())
+        print("Options: " + str(options)[4:-1])
+        piece = raw_input(':')
+        
+        while piece not in options:
+            print("Invalid entry")
+            print('')
+            print("Choose a piece to move")
+            print("Options: " + str(options)[4:-1])
+            piece = raw_input(':')
+
+        print('')
+
+        return piece
+
+    def narrow_down_pieces(self, piece, player):
+        if player == 'w':
+            pieces = self.w
+        elif player == 'b':
+            pieces = self.b
+
+        options = [x for x in pieces if pieces[x] == piece]
+
+        # Choose from multiple options
+        if len(options) > 1:
+            print("Which " + self.piece_dict[piece] + '?')
+            print("Options: " + str(options))
+            orig_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
+            orig_pos = (int(orig_pos_raw[0]),int(orig_pos_raw[1]))
+
+            # Catching not available position entry
+            while orig_pos not in options:
+                print("Invalid entry")
+                print('')
+                print('Which ' + self.piece_dict[piece] + ' to move?')
+                print("Options: " + str(options))
+                orig_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
+                orig_pos = (int(orig_pos_raw[0]),int(orig_pos_raw[1]))
+        # Only one option available
+        elif len(options) == 1:
+            orig_pos = options[0]
+        print('')
+
+        return orig_pos
+        
+    def get_dest(self, player, orig_pos, piece):
+        print("Where to?")
+        options = self.can_move(player, piece, orig_pos)[1]
+
+        print("Options: " + str(options))
+        new_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
+        new_pos = (int(new_pos_raw[0]), int(new_pos_raw[1]))
+
+        # Catching not available position entry
+        while new_pos not in options:
+            print("Invalid entry")
+            print('')
+            print("Where to?")
+            print("options: " + self.can_move(player, piece, orig_pos)[1])
+            new_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
+            new_pos = (int(new_pos_raw[0]), int(new_pos_raw[1]))
+
+        return new_pos
 
     def start_game(self):
-        print(self)
-        print("Game started!")
+        print('')
+        print("        [[ GAME START ]]")
         print('')
         # Start with white
         curr_player = 'w'
@@ -330,69 +402,12 @@ class Chess_Board():
         ############ MAIN LOOP ###############
         ######################################
         while self.is_game_over() != True:
-            if curr_player == 'w':
-                print("White's turn")
-                pieces = self.w
-            elif curr_player == 'b':
-                print("Black's turn")
-                pieces = self.b
-
-            ############ Choosing Piece ###############
-            ###########################################
-            print('')
-            print("Choose a piece to move")
-            options = set(pieces.values())
-            print("Options: " + str(set(pieces.values()))[4:-1])
-            piece = raw_input(':')
-            # Catching not available piece entry
-            while piece not in options:
-                print("Invalid entry")
-                print('')
-                print("Choose a piece to move")
-                print("Options: " + str(set(pieces.values()))[4:-1])
-                piece = raw_input(':')
-            print('')
-
-            ############ Which One ###############
-            ######################################
-            options = [x for x in pieces if pieces[x] == piece]
-            # Choose from multiple options
-            if len(options) > 1:
-                print("Which one?")
-                print("Options: " + str(options))
-                orig_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
-                orig_pos = (int(orig_pos_raw[0]),int(orig_pos_raw[1]))
-                # Catching not available position entry
-                while orig_pos not in options:
-                    print("Invalid entry")
-                    print('')
-                    print("Which one?")
-                    print("Options: " + str(options))
-                    orig_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
-                    orig_pos = (int(orig_pos_raw[0]),int(orig_pos_raw[1]))
-            # Only one option available
-            elif len(options) == 1:
-                orig_pos = options[0]
-            print('')
-
-            ############ Where to ###############
-            #####################################
-            print("Where to?")
-            options = self.can_move(curr_player, piece, orig_pos)[1]
-            print("options: " + str(options))
-            new_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
-            new_pos = (int(new_pos_raw[0]), int(new_pos_raw[1]))
-            # Catching not available position entry
-            while new_pos not in options:
-                print("Invalid entry")
-                print('')
-                print("Where to?")
-                print("options: " + self.can_move(curr_player, piece, orig_pos)[1])
-                new_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
-                new_pos = (int(new_pos_raw[0]), int(new_pos_raw[1]))
+            print(self)
+            piece = self.choose_piece_to_move(curr_player)
+            orig_pos = self.narrow_down_pieces(piece, curr_player)
+            new_pos = self.get_dest(curr_player, orig_pos, piece)
 
             self.move(curr_player, orig_pos, new_pos)
-            print(self)
 
             if curr_player == 'w':
                 curr_player = 'b'
