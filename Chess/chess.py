@@ -1,7 +1,7 @@
 from time import sleep
 from random import random
 
-class Chess_Board():
+class ChessBoard():
     def __init__(self):
         self.width = self.height = 8
         self.w = {(7,0):'r', (7,7):'r', (7,1):'n', (7,6):'n',\
@@ -330,14 +330,14 @@ class Chess_Board():
         print("Choose a piece to move")
         options = set(pieces.values())
         print("Options: " + str(options)[4:-1])
-        piece = raw_input(':')
+        piece = input(':')
         
         while piece not in options:
             print("Invalid entry")
             print('')
             print("Choose a piece to move")
             print("Options: " + str(options)[4:-1])
-            piece = raw_input(':')
+            piece = input(':')
 
         print('')
 
@@ -355,7 +355,7 @@ class Chess_Board():
         if len(options) > 1:
             print("Which " + self.piece_dict[piece] + '?')
             print("Options: " + str(options))
-            orig_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
+            orig_pos_raw = input(':').replace('(','').replace(')','').replace(',','')
             orig_pos = (int(orig_pos_raw[0]),int(orig_pos_raw[1]))
 
             # Catching not available position entry
@@ -364,7 +364,7 @@ class Chess_Board():
                 print('')
                 print('Which ' + self.piece_dict[piece] + ' to move?')
                 print("Options: " + str(options))
-                orig_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
+                orig_pos_raw = input(':').replace('(','').replace(')','').replace(',','')
                 orig_pos = (int(orig_pos_raw[0]),int(orig_pos_raw[1]))
         # Only one option available
         elif len(options) == 1:
@@ -378,7 +378,7 @@ class Chess_Board():
         options = self.can_move(player, piece, orig_pos)[1]
 
         print("Options: " + str(options))
-        new_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
+        new_pos_raw = input(':').replace('(','').replace(')','').replace(',','')
         new_pos = (int(new_pos_raw[0]), int(new_pos_raw[1]))
 
         # Catching not available position entry
@@ -387,7 +387,7 @@ class Chess_Board():
             print('')
             print("Where to?")
             print("options: " + self.can_move(player, piece, orig_pos)[1])
-            new_pos_raw = raw_input(':').replace('(','').replace(')','').replace(',','')
+            new_pos_raw = input(':').replace('(','').replace(')','').replace(',','')
             new_pos = (int(new_pos_raw[0]), int(new_pos_raw[1]))
 
         return new_pos
@@ -414,5 +414,5 @@ class Chess_Board():
             elif curr_player == 'b':
                 curr_player = 'w'
 
-b=Chess_Board()
+b=ChessBoard()
 b.start_game()
